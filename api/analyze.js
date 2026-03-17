@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
-            return res.status(500).json({ error: 'System error: Chemical developer missing (API Key not configured).' });
+            return res.status(500).json({ error: 'System error: API Key not configured.' });
         }
 
         if (!image) {
@@ -19,7 +19,8 @@ export default async function handler(req, res) {
         const mimeTypeMatch = image.match(/^data:(image\/(png|jpeg|jpg|webp));base64,/);
         const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : "image/jpeg";
 
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // FIXED: Updated to the correct Gemini 2.5 Flash endpoint
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
         const payload = {
             contents: [{
