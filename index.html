@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peak 2026 | Darkroom AI Critique</title>
+    <title>Darkroom | AI Photographic Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,7 +65,7 @@
 <body class="min-h-screen p-4 md:p-8">
     <header class="max-w-7xl mx-auto mb-12 flex justify-between items-end border-b border-borderline pb-4">
         <div>
-            <h1 class="text-4xl font-bold tracking-tight">PEAK<span class="text-safelight">2026</span></h1>
+            <h1 class="text-4xl font-bold tracking-tight">DARK<span class="text-safelight">ROOM</span></h1>
             <p class="text-gray-400 font-light mt-1">AI Photographic Curation & Analysis</p>
         </div>
     </header>
@@ -222,7 +222,7 @@
                 clearTimeout(timeoutId);
 
                 if (!response.ok) {
-                    const errData = await response.json();
+                    const errData = await response.json().catch(() => ({}));
                     throw new Error(errData.error || `Server error: ${response.status}`);
                 }
 
