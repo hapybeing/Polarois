@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peak 2026 | Darkroom AI Critique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkroom: '#111111',
+                        safelight: '#DC2626',
+                        panel: '#1a1a1a',
+                        borderline: '#333333'
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #111111;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        @keyframes emerge {
+            0% { opacity: 0.1; filter: contrast(1.5) brightness(0.8) sepia(1) hue-rotate(-50deg); }
+            50% { opacity: 0.8; filter: contrast(1.1) brightness(1.2) sepia(0.5) hue-rotate(-20deg); }
+            100% { opacity: 0.1; filter: contrast(1.5) brightness(0.8) sepia(1) hue-rotate(-50deg); }
+        }
+
+        .developing-state {
+            animation: emerge 4s infinite ease-in-out;
+        }
+
+        .bento-card {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .bento-card:hover {
+            border-color: #DC2626;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(220, 38, 38, 0.1);
+        }
+
+        .drop-active {
+            border-color: #DC2626 !important;
+            background-color: rgba(220, 38, 38, 0.05) !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <header class="max-w-7xl mx-auto mb-12 flex justify-between items-end border-b border-borderline pb-4">
+        <div>
+            <h1 class="text-4xl font-bold tracking-tight">PEAK<span class="text-safelight">2026</span></h1>
+            <p class="text-gray-400 font-light mt-1">AI Photographic Curation & Analysis</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <section class="lg:col-span-5">
+            <div class="aspect-square w-full relative rounded-2xl border-2 border-dashed border-borderline bg-panel flex flex-col items-center justify-center overflow-hidden transition-all duration-300" id="dropZone">
+                <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                
+                <div id="uploadPrompt" class="text-center z-10 pointer-events-none p-6">
+                    <svg class="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <p class="text-lg font-semibold">Drop negative here</p>
+                    <p class="text-sm text-gray-500 mt-2">or click to browse</p>
+                </div>
+
+                <div id="loadingState" class="hidden absolute inset-0 z-10 flex flex-col items-center justify-center bg-darkroom">
+                    <div class="w-full h-full absolute inset-0 bg-safelight developing-state pointer-events-none"></div>
+                    <span class="relative z-10 text-safelight font-bold text-xl tracking-widest uppercase">Developing...</span>
+                </div>
+
+                <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover z-10" alt="Preview">
+            </div>
+            
+            <div id="errorMessage" class="hidden mt-4 p-4 rounded-lg bg-red-950 border border-safelight text-red-200 text-sm"></div>
+        </section>
+
+        <section class="lg:col-span-7">
+            <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden opacity-0 transition-opacity duration-1000">
+                
+                <div class="bento-card md:col-span-2">
+                    <h3 class="text-xs font-bold text-safelight uppercase tracking-wider mb-2">Narrative</h3>
+                    <p id="resNarrative" class="text-gray-300 leading-relaxed text-lg"></p>
+                </div>
+
+                <div class="bento-card">
+                    <h3 class="text-xs font-bold text-safelight uppercase tracking-wider mb-2">Composition</h3>
+                    <p id="resComposition" class="text-gray-400 leading-relaxed"></p>
+                </div>
+
+                <div class="bento-card">
+                    <h3 class="text-xs font-bold text-safelight uppercase tracking-wider mb-2">Lighting</h3>
+                    <p id="resLighting" class="text-gray-400 leading-relaxed"></p>
+                </div>
+
+                <div class="bento-card">
+                    <h3 class="text-xs font-bold text-safelight uppercase tracking-wider mb-2">Mood</h3>
+                    <p id="resMood" class="text-gray-400 leading-relaxed"></p>
+                </div>
+
+                <div class="bento-card">
+                    <h3 class="text-xs font-bold text-safelight uppercase tracking-wider mb-2">Technical Analysis</h3>
+                    <p id="resTechnical" class="text-gray-400 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <div id="emptyState" class="h-full flex items-center justify-center text-gray-600 border border-borderline rounded-2xl p-12 text-center bg-panel">
+                <p>Awaiting exposure.<br>Upload an image to initiate chemical analysis.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const loadingState = document.getElementById('loadingState');
+        const imagePreview = document.getElementById('imagePreview');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const emptyState = document.getElementById('emptyState');
+        const errorMessage = document.getElementById('errorMessage');
+
+        const elements = {
+            narrative: document.getElementById('resNarrative'),
+            composition: document.getElementById('resComposition'),
+            lighting: document.getElementById('resLighting'),
+            mood: document.getElementById('resMood'),
+            technical: document.getElementById('resTechnical')
+        };
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drop-active'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drop-active'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            
+            if (!file.type.match('image.*')) {
+                showError('Invalid file type. Please upload a JPEG, PNG, or WEBP.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            
+            reader.onload = function(e) {
+                const base64Image = e.target.result;
+                
+                imagePreview.src = base64Image;
+                imagePreview.classList.remove('hidden');
+                uploadPrompt.classList.add('hidden');
+                
+                analyzeImage(base64Image);
+            }
+            
+            reader.onerror = function() {
+                showError('Error reading file.');
+            };
+        }
+
+        async function analyzeImage(base64Image) {
+            hideError();
+            loadingState.classList.remove('hidden');
+            resultsGrid.classList.add('hidden');
+            resultsGrid.classList.remove('opacity-100');
+            emptyState.classList.add('hidden');
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image: base64Image }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || `Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                populateResults(data);
+
+            } catch (error) {
+                let msg = error.message;
+                if (error.name === 'AbortError') {
+                    msg = 'Development process timed out. The image was too complex or the server is busy.';
+                }
+                showError(msg);
+                emptyState.classList.remove('hidden');
+            } finally {
+                loadingState.classList.add('hidden');
+            }
+        }
+
+        function populateResults(data) {
+            for (const [key, element] of Object.entries(elements)) {
+                if (data[key]) {
+                    element.textContent = data[key];
+                } else {
+                    element.textContent = 'Analysis pending...';
+                }
+            }
+            
+            resultsGrid.classList.remove('hidden');
+            setTimeout(() => {
+                resultsGrid.classList.add('opacity-100');
+            }, 50);
+        }
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
